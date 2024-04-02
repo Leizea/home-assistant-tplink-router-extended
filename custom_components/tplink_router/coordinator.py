@@ -3,7 +3,7 @@ from datetime import timedelta
 from logging import Logger
 from collections.abc import Callable
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from tplinkrouterc6u import TplinkRouterProvider, AbstractRouter, Firmware, Status, Wifi
+from tplinkrouterc6u import TplinkRouterProvider, AbstractRouter, Firmware, Status, IPv4Status, Wifi
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from .const import (
@@ -20,12 +20,14 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
             update_interval: int,
             firmware: Firmware,
             status: Status,
+            ipv4_status: IPv4Status,
             logger: Logger,
             unique_id: str
     ) -> None:
         self.router = router
         self.unique_id = unique_id
         self.status = status
+        self.ipv4_status = ipv4_status
         self.device_info = DeviceInfo(
             configuration_url=router.host,
             connections={(CONNECTION_NETWORK_MAC, self.status.lan_macaddr)},
@@ -69,5 +71,5 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Asynchronous update of all data."""
-        self.status = await self.hass.async_add_executor_job(TPLinkRouterCoordinator.request, self.router,
-                                                             self.router.get_status)
+        self.status = await self.hass.async_add_executor_job(TPLinkRouterCoordinator.request, self.router, self.router.get_status)
+        self.ipv4_status = await self.hass.async_add_executor_job(TPLinkRouterCoordinator.request, self.router, self.router.get_ipv4_status)

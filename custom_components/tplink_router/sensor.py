@@ -14,7 +14,7 @@ from .const import DOMAIN
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .coordinator import TPLinkRouterCoordinator
-from tplinkrouterc6u import Status
+from tplinkrouterc6u import Status, IPv4Status
 
 
 @dataclass
@@ -82,6 +82,12 @@ SENSOR_TYPES: tuple[TPLinkRouterSensorEntityDescription, ...] = (
         suggested_display_precision=2,
         value=lambda status: status.mem_usage,
     ),
+    TPLinkRouterSensorEntityDescription(
+        key="wan_con_type",
+        name="Wan connection type",
+        icon="mdi:wan",
+        value=lambda ipv4_status: ipv4_status.wan_ipv4_conntype,
+    ),    
 )
 
 
