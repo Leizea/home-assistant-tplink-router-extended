@@ -33,35 +33,35 @@ SENSOR_TYPES: tuple[TPLinkRouterSensorEntityDescription, ...] = (
         name="Total guest wifi clients",
         icon="mdi:account-multiple",
         state_class=SensorStateClass.TOTAL,
-        value=lambda status: status.guest_clients_total,
+        value=lambda coordinator: coordinator.status.guest_clients_total,
     ),
     TPLinkRouterSensorEntityDescription(
         key="wifi_clients_total",
         name="Total main wifi clients",
         icon="mdi:account-multiple",
         state_class=SensorStateClass.TOTAL,
-        value=lambda status: status.wifi_clients_total,
+        value=lambda coordinator: coordinator.status.wifi_clients_total,
     ),
     TPLinkRouterSensorEntityDescription(
         key="wired_clients_total",
         name="Total wired clients",
         icon="mdi:account-multiple",
         state_class=SensorStateClass.TOTAL,
-        value=lambda status: status.wired_total,
+        value=lambda coordinator: coordinator.status.wired_total,
     ),
     TPLinkRouterSensorEntityDescription(
         key="iot_clients_total",
         name="Total IoT clients",
         icon="mdi:account-multiple",
         state_class=SensorStateClass.TOTAL,
-        value=lambda status: status.iot_clients_total,
+        value=lambda coordinator: coordinator.status.iot_clients_total,
     ),
     TPLinkRouterSensorEntityDescription(
         key="clients_total",
         name="Total clients",
         icon="mdi:account-multiple",
         state_class=SensorStateClass.TOTAL,
-        value=lambda status: status.clients_total,
+        value=lambda coordinator: coordinator.status.clients_total,
     ),
     TPLinkRouterSensorEntityDescription(
         key="cpu_used",
@@ -70,7 +70,7 @@ SENSOR_TYPES: tuple[TPLinkRouterSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=1,
-        value=lambda status: (status.cpu_usage * 100) if status.cpu_usage is not None else None,
+        value=lambda coordinator: (coordinator.status.cpu_usage * 100) if coordinator.status.cpu_usage is not None else None,
     ),
     TPLinkRouterSensorEntityDescription(
         key="memory_used",
@@ -80,13 +80,13 @@ SENSOR_TYPES: tuple[TPLinkRouterSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.DATA_SIZE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
-        value=lambda status: status.mem_usage,
+        value=lambda coordinator: coordinator.status.mem_usage,
     ),
     TPLinkRouterSensorEntityDescription(
         key="wan_con_type",
         name="Wan connection type",
         icon="mdi:wan",
-        value=lambda ipv4_status: ipv4_status.wan_ipv4_conntype,
+        value=lambda coordinator: coordinator.ipv4_status.wan_ipv4_conntype,
     ),    
 )
 
@@ -123,10 +123,10 @@ class TPLinkRouterSensor(
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_native_value = self.entity_description.value(self.coordinator.status)
+        self._attr_native_value = self.entity_description.value(self.coordinator)
         self.async_write_ha_state()
 
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return self.entity_description.value(self.coordinator.status) is not None
+        return self.entity_description.value(self.coordinator.status) is not None or self.entity_description.value(self.coordinator.ipv4_status) is not None
