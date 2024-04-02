@@ -19,7 +19,7 @@ from tplinkrouterc6u import Status, IPv4Status
 
 @dataclass
 class TPLinkRouterSensorRequiredKeysMixin:
-    value: Callable[[Status], Any]
+    value: Callable[[TPLinkRouterCoordinator], Any]
 
 
 @dataclass
@@ -129,4 +129,4 @@ class TPLinkRouterSensor(
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return self.entity_description.value(self.coordinator.status) is not None or self.entity_description.value(self.coordinator.ipv4_status) is not None
+        return self.entity_description.value(self.coordinator) is not None
