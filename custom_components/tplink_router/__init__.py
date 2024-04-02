@@ -45,9 +45,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return firm, stat
 
     firmware, status = await hass.async_add_executor_job(TPLinkRouterCoordinator.request, client, callback)
+    ipv4_status = await hass.async_add_executor_job(TPLinkRouterCoordinator.request, client, callback)
 
     # Create device coordinator and fetch data
-    coordinator = TPLinkRouterCoordinator(hass, client, entry.data[CONF_SCAN_INTERVAL], firmware, status, _LOGGER,
+    coordinator = TPLinkRouterCoordinator(hass, client, entry.data[CONF_SCAN_INTERVAL], firmware, status, ipv4_status, _LOGGER,
                                           entry.entry_id)
 
     await coordinator.async_config_entry_first_refresh()
